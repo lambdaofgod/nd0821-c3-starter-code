@@ -20,7 +20,7 @@ jobs:
           pip install -r requirements.txt
       - name: Format code
         run: |
-          autopep8 --in-place --aggressive --aggressive --recursive .
+          python -m autopep8 --in-place --aggressive --aggressive --recursive .
           python -m flake8 
       - name: Test with pytest
         run: |
