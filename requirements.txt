@@ -1,0 +1,4 @@
+flake8
+autoflake8
+scikit-learn
+pytest
