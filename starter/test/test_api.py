@@ -17,7 +17,7 @@ def test_validation_passes_for_correct_objects(item_dict):
     correct item dict should be possible to parse as Item
     """
     item = api_classes.Item.parse_obj(item_dict)
-    assert True
+    assert type(item) is api_classes.Item
 
 
 def test_item_handles_export_to_json_with_hypens(item_dict):
@@ -44,5 +44,5 @@ def test_validation_fails_for_incorrect_object(item_dict):
     """
     del item_dict["sex"]
 
-    with pytest.raises(pydantic.error_wrappers.ValidationError) as exc:
-        item = api_classes.Item.parse_obj(item_dict)
+    with pytest.raises(pydantic.error_wrappers.ValidationError):
+        api_classes.Item.parse_obj(item_dict)
