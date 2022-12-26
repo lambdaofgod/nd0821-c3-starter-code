@@ -1,4 +1,4 @@
 flake8
-autoflake8
+autopep8
 scikit-learn
 pytest
