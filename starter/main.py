@@ -12,7 +12,8 @@ Endpoints:
 import uvicorn
 from fastapi import FastAPI
 import pandas as pd
-
+import pickle
+import api_classes
 
 app = FastAPI()
 
@@ -24,23 +25,21 @@ class FakeModel:
 
 
 # load model
-# with open("model.pkl", "rb") as f:
-#    model = pickle.load(f)
-
-model = FakeModel()
+with open("model.pkl", "rb") as f:
+    model_wrapper = pickle.load(f)
 
 
 @app.post("/predict")
-def predict(features: dict):
+def predict(item: api_classes.Item):
     """
     request contains JSON with features
     """
     # convert to numpy array
-    features_df = pd.DataFrame.from_records([features])
+    item_dict = item.dict(by_alias=True)
     # make prediction
-    prediction = model.predict(features_df)[0]
+    prediction = model_wrapper.predict_single(item_dict)
     # return prediction
-    return {"prediction": int(prediction)}
+    return {"prediction": prediction}
 
 
 if __name__ == "__main__":

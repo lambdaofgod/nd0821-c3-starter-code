@@ -1,8 +1,29 @@
-from sklearn.metrics import fbeta_score, precision_score, recall_score
-from sklearn import ensemble
+from dataclasses import dataclass
 
+import pandas as pd
+from sklearn import base, ensemble, pipeline
+from sklearn.metrics import fbeta_score, precision_score, recall_score
+
+
+@dataclass
+class ClassifierWrapper:
+    """
+    class wrapping classifier pipeline and target encoder
+    """
+
+    clf: base.ClassifierMixin
+    feature_encoder: base.TransformerMixin
+    target_encoder: base.TransformerMixin
+
+    def predict_single(self, item_dict):
+        single_item_df = pd.DataFrame.from_records([item_dict])
+        features = self.feature_encoder.transform(single_item_df)
+        return self.target_encoder.inverse_transform(
+            self.clf.predict(features))[0]
 
 # Optional: implement hyperparameter tuning.
+
+
 def train_model(X_train, y_train):
     """
     Trains a machine learning model and returns it.
