@@ -11,7 +11,6 @@ Endpoints:
 
 import uvicorn
 from fastapi import FastAPI
-import pandas as pd
 import pickle
 import api_classes
 
