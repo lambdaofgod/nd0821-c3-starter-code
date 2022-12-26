@@ -31,7 +31,12 @@ X_train, y_train, feature_encoder, lb = process_data(
 )
 
 # Proces the test data with the process_data function.
-X_test, y_test, __,  __= process_data(test, label="salary", feature_encoder=feature_encoder, lb=lb)
+(X_test, y_test, __,  __) = process_data(
+    test,
+    label="salary",
+    feature_encoder=feature_encoder,
+    lb=lb
+)
 
 # Train and save a model.
 

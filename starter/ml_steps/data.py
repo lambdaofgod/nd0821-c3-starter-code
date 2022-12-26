@@ -41,7 +41,8 @@ def process_data(
         Processed data.
     y : np.array
         Processed labels if labeled=True, otherwise empty np.array.
-    encoder : column transformer that encodes categorical_features with OneHotEncoding and does not touch other features
+    encoder : column transformer that encodes categorical_features
+    with OneHotEncoding and does not touch other features
     """
 
     if label is not None:
