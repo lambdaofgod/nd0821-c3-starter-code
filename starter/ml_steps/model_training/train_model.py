@@ -1,8 +1,10 @@
 # Script to train machine learning model.
 
 from sklearn.model_selection import train_test_split
-from starter.ml_steps.data import process_data
+from ml_steps.data import process_data
+from ml_steps.model_training import model
 import pandas as pd
+import pickle
 
 # Add the necessary imports for the starter code.
 
@@ -24,10 +26,16 @@ cat_features = [
     "sex",
     "native-country",
 ]
-X_train, y_train, encoder, lb = process_data(
+X_train, y_train, feature_encoder, lb = process_data(
     train, categorical_features=cat_features, label="salary", training=True
 )
 
 # Proces the test data with the process_data function.
+X_test, y_test, __,  __= process_data(test, label="salary", feature_encoder=feature_encoder, lb=lb)
 
 # Train and save a model.
+
+trained_model = model.train_model(X_train, y_train)
+
+with open("model.pkl", "wb") as f:
+    pickle.dump(trained_model, f)

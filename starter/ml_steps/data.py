@@ -1,8 +1,15 @@
 import numpy as np
 from sklearn.preprocessing import LabelBinarizer, OneHotEncoder
+from sklearn import compose
 
 
-def process_data(X, categorical_features=[], label=None, training=True, encoder=None, lb=None):
+def process_data(
+        X,
+        categorical_features=[],
+        label=None,
+        training=True,
+        feature_encoder=None,
+        lb=None):
     """Process the data used in the machine learning pipeline.
 
     Processes the data using one hot encoding for the categorical features and a
@@ -34,12 +41,7 @@ def process_data(X, categorical_features=[], label=None, training=True, encoder=
         Processed data.
     y : np.array
         Processed labels if labeled=True, otherwise empty np.array.
-    encoder : sklearn.preprocessing._encoders.OneHotEncoder
-        Trained OneHotEncoder if training is True, otherwise returns the encoder passed
-        in.
-    lb : sklearn.preprocessing._label.LabelBinarizer
-        Trained LabelBinarizer if training is True, otherwise returns the binarizer
-        passed in.
+    encoder : column transformer that encodes categorical_features with OneHotEncoding and does not touch other features
     """
 
     if label is not None:
@@ -47,22 +49,22 @@ def process_data(X, categorical_features=[], label=None, training=True, encoder=
         X = X.drop([label], axis=1)
     else:
         y = np.array([])
-
-    X_categorical = X[categorical_features].values
-    X_continuous = X.drop(*[categorical_features], axis=1)
-
+    num_features = [col for col in X.columns if not col ==
+                    label and col not in categorical_features]
+    feature_encoder = compose.ColumnTransformer(
+        [("numerical", "passthrough", num_features),
+         ("categorical", OneHotEncoder(sparse=False), categorical_features)]
+    )
     if training is True:
-        encoder = OneHotEncoder(sparse=False, handle_unknown="ignore")
         lb = LabelBinarizer()
-        X_categorical = encoder.fit_transform(X_categorical)
         y = lb.fit_transform(y.values).ravel()
+        X_features = feature_encoder.fit_transform(X)
     else:
-        X_categorical = encoder.transform(X_categorical)
+        X_features = feature_encoder.transform(X)
         try:
             y = lb.transform(y.values).ravel()
         # Catch the case where y is None because we're doing inference.
         except AttributeError:
             pass
 
-    X = np.concatenate([X_continuous, X_categorical], axis=1)
-    return X, y, encoder, lb
+    return X_features, y, feature_encoder, lb
