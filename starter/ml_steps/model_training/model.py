@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 import pandas as pd
-from sklearn import base, ensemble 
+from sklearn import base, ensemble
 from sklearn.metrics import fbeta_score, precision_score, recall_score
 
 

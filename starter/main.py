@@ -12,7 +12,7 @@ Endpoints:
 import uvicorn
 from fastapi import FastAPI
 import pickle
-import api_classes
+from ml_steps import api_classes
 
 app = FastAPI()
 
