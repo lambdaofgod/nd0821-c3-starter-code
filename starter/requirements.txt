@@ -1,5 +1,7 @@
 numpy
 pandas
+flake8
+autopep8
 scikit-learn
 pytest
 requests
