@@ -1,11 +1,32 @@
-from ml_steps.model_training.model import compute_model_metrics, inference
+from mlops_fastapi.model_training.model import (
+    compute_model_metrics,
+    inference,
+    ClassifierWrapper,
+)
 import numpy as np
+from sklearn import preprocessing
+from mock_classes import MockModel, MockEncoder
+import pytest
 
 
-class FakeModel:
+@pytest.fixture
+def data():
+    n = 5
+    return [{"x": x, "z": x % 2} for x in np.arange(n)]
 
-    def predict(self, X):
-        return X.sum(axis=1) > 2
+
+@pytest.fixture
+def target():
+    return np.array(["no", "no", "no", "yes", "yes"])
+
+
+@pytest.fixture
+def classifier_wrapper():
+    wrapper = ClassifierWrapper(
+        MockModel(), MockEncoder(), preprocessing._label.LabelBinarizer()
+    )
+    wrapper.target_encoder.fit(["yes", "no"])
+    return wrapper
 
 
 def test_compute_model_metrics():
@@ -20,7 +41,21 @@ def test_compute_model_metrics():
 
 def test_inference():
     X = np.eye(5)
-    model = FakeModel()
+    model = MockModel()
     X[3:, :] = 1
     predictions = inference(model, X)
     assert predictions.shape[0] == X.shape[0]
+
+
+def test_classifier_wrapper_predict(classifier_wrapper, data, target):
+
+    for i in range(len(data)):
+        prediction = classifier_wrapper.predict_single(data[i])
+        assert prediction == target[i]
+
+
+def test_classifier_wrapper_predict_proba(classifier_wrapper, data, target):
+    proba_predictions = classifier_wrapper.predict_single_proba(data[0])
+    assert set(proba_predictions.keys()) == {"yes", "no"}
+    for prob in proba_predictions.values():
+        assert 0 <= prob <= 1

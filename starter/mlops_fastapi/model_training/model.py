@@ -16,10 +16,19 @@ class ClassifierWrapper:
     target_encoder: base.TransformerMixin
 
     def predict_single(self, item_dict):
+        features = self._get_features(item_dict)
+        return self.target_encoder.inverse_transform(self.clf.predict(features))[0]
+
+    def predict_single_proba(self, item_dict):
+        features = self._get_features(item_dict)
+        class_names = self.target_encoder.classes_
+        probas = self.clf.predict_proba(features)[0]
+        return dict(zip(class_names, probas))
+
+    def _get_features(self, item_dict):
         single_item_df = pd.DataFrame.from_records([item_dict])
-        features = self.feature_encoder.transform(single_item_df)
-        return self.target_encoder.inverse_transform(
-            self.clf.predict(features))[0]
+        return self.feature_encoder.transform(single_item_df)
+
 
 # Optional: implement hyperparameter tuning.
 

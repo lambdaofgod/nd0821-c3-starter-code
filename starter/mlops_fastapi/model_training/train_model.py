@@ -1,9 +1,9 @@
 # Script to train machine learning model.
 
 from sklearn.model_selection import train_test_split
-from ml_steps.data import process_data
-from ml_steps.model_training import model
-from ml_steps import config
+from mlops_fastapi.data import process_data
+from mlops_fastapi.model_training import model
+from mlops_fastapi import config
 import pandas as pd
 import pickle
 
