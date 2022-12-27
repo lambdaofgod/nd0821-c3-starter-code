@@ -9,18 +9,18 @@ Endpoints:
     request contains JSON with features
 """
 
+from enum import Enum
 import uvicorn
 from fastapi import FastAPI
 import pickle
-from ml_steps import api_classes
+import api_classes
 
 app = FastAPI()
 
 
-class FakeModel:
-
-    def predict(self, X):
-        return X.sum(axis=1) > 2
+class PredictionType(str, Enum):
+    result = "result"
+    probability = "probability"
 
 
 # load model
@@ -28,17 +28,26 @@ with open("model.pkl", "rb") as f:
     model_wrapper = pickle.load(f)
 
 
-@app.post("/predict")
-def predict(item: api_classes.Item):
+@app.get("/root")
+def root():
+    return {"message": "Hello World"}
+
+
+@app.post("/predict/{prediction_type}")
+def predict(item: api_classes.Item, prediction_type: PredictionType):
     """
     request contains JSON with features
     """
+    assert prediction_type in {"result", "probability"}
     # convert to numpy array
     item_dict = item.dict(by_alias=True)
     # make prediction
-    prediction = model_wrapper.predict_single(item_dict)
-    # return prediction
-    return {"prediction": prediction}
+    if prediction_type is PredictionType.result:
+        prediction = model_wrapper.predict_single(item_dict)
+        # return prediction
+        return {"prediction": prediction}
+    prediction = model_wrapper.predict_single_proba(item_dict)
+    return prediction
 
 
 if __name__ == "__main__":
